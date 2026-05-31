@@ -2,30 +2,32 @@ package subclasses;
 
 import base.BankAccount;
 
+import java.math.BigDecimal;
+
 public class SavingsAccount extends BankAccount {
 
-    private double interestRate;
-    private double withdrawalLimits;
+    private BigDecimal interestRate;
+    private BigDecimal withdrawalLimits;
 
-    public SavingsAccount(int accountNumber, double balance, String owner, double interestRate, double withdrawalLimits) {
+    public SavingsAccount(int accountNumber, BigDecimal balance, String owner, BigDecimal interestRate, BigDecimal withdrawalLimits) {
         super(accountNumber, balance, owner);
         this.interestRate = interestRate;
         this.withdrawalLimits = withdrawalLimits;
     }
 
-    public double getInterestRate() {
+    public BigDecimal getInterestRate() {
         return interestRate;
     }
 
-    public void setInterestRate(double interestRate) {
+    public void setInterestRate(BigDecimal interestRate) {
         this.interestRate = interestRate;
     }
 
-    public double getWithdrawalLimits() {
+    public BigDecimal getWithdrawalLimits() {
         return withdrawalLimits;
     }
 
-    public void setWithdrawalLimits(double withdrawalLimits) {
+    public void setWithdrawalLimits(BigDecimal withdrawalLimits) {
         this.withdrawalLimits = withdrawalLimits;
     }
 
@@ -35,13 +37,16 @@ public class SavingsAccount extends BankAccount {
     }
 
     @Override
-    public boolean withdraw(int amount) {
-        if(amount < 0) return false;
-        if(getBalance() - amount < 150) {
+    public boolean withdraw(BigDecimal amount) {
+        if(amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) return false;
+
+        BigDecimal minBalance = new BigDecimal("150");
+        BigDecimal newBalance = getBalance().subtract(amount);
+
+        if(newBalance.compareTo(minBalance) < 0) {
             return false;
         }
 
-        super.withdraw(amount);
-        return true;
+        return super.withdraw(amount);
     }
 }

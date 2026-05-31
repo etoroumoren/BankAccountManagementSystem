@@ -1,13 +1,35 @@
+import base.BankAccount;
+import subclasses.CurrentAccount;
+import subclasses.FixedDepositAccount;
+import subclasses.SavingsAccount;
+
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 void main() {
-    //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-    // to see how IntelliJ IDEA suggests fixing it.
-    IO.println(String.format("Hello and welcome!"));
 
-    for (int i = 1; i <= 5; i++) {
-        //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-        // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-        IO.println("i = " + i);
+    List<BankAccount> accounts = new ArrayList<>();
+    accounts.add(new SavingsAccount( 12345,
+            new BigDecimal("500.00"),
+            "Ikpa",
+            new BigDecimal("5"),
+            new BigDecimal("200")));
+    accounts.add(new CurrentAccount(
+            12345,
+            new BigDecimal("500.00"),
+            "Ikpa",
+            new BigDecimal("300")
+    ));
+    accounts.add(new FixedDepositAccount(
+            12345,
+            new BigDecimal("500.00"),
+            "Ikpa",
+            LocalDate.now(),
+            2
+    ));
+
+    for (BankAccount account : accounts) {
+        System.out.println(account.getAccountType());
+        account.withdraw(new BigDecimal("500")); // different behavior per type
+        account.printStatement();
     }
 }

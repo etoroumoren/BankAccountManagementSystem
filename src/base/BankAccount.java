@@ -1,39 +1,46 @@
 package base;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 abstract public class BankAccount implements Printable, Transactable {
 
     private int accountNumber;
-    private double balance;
+    private BigDecimal balance;
     private String owner;
     private AccountStatus status = AccountStatus.ACTIVE;
+    private final List<Transaction> transactions = new ArrayList<>();
 
-    public BankAccount (int accountNumber, double balance, String owner) {
+    public BankAccount (int accountNumber, BigDecimal balance, String owner) {
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.owner = owner;
     }
 
     public class Transaction {
-        private int amount;
-        private LocalDateTime now;
+        private final BigDecimal amount;
+        private final TransactionType type;
+        private final LocalDateTime timestamp;
 
-        public int getAmount() {
+        public Transaction (BigDecimal amount, TransactionType type) {
+            this.amount = amount;
+            this.type = type;
+            this.timestamp = LocalDateTime.now();
+        }
+
+        public BigDecimal getAmount() {
             return amount;
         }
 
-        public void setAmount(int amount) {
-            this.amount = amount;
-        }
-
         public LocalDateTime getNow() {
-            return now;
+            return timestamp;
         }
 
-        public void setNow(LocalDateTime now) {
-            this.now = now;
+        @Override
+        public String toString() {
+            return timestamp + ": " + type + ": " + amount;
         }
     }
 
@@ -53,11 +60,11 @@ abstract public class BankAccount implements Printable, Transactable {
         this.status = status;
     }
 
-    public double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(double balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 
@@ -71,35 +78,43 @@ abstract public class BankAccount implements Printable, Transactable {
 
     abstract public String getAccountType();
 
-    public boolean deposit(int amount) {
-        if(amount <= 0) return false;
+    public boolean deposit(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) return false;
         if(status != AccountStatus.ACTIVE) return false;
-        this.balance += amount;
+        this.balance = this.balance.add(amount);
+        transactions.add(new Transaction(amount, TransactionType.DEPOSIT));
         return true;
     }
 
-    public boolean withdraw(int amount) {
+    public boolean withdraw(BigDecimal amount) {
         if(status != AccountStatus.ACTIVE) return false;
-        if(amount <= 0) return false;
-        this.balance -= amount;
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) return false;
+        if(balance.compareTo(amount) < 0) return false;
+        this.balance = this.balance.subtract(amount);
+        transactions.add(new Transaction(amount, TransactionType.WITHDRAWAL));
         return true;
     }
 
     public void printStatement() {
-        System.out.println("Your account balance is: " + getBalance());
+
+        for(Transaction transaction: transactions) {
+            System.out.println(transaction);
+        }
     }
 
 
-    public boolean transfer(BankAccount target, int amount) {
-        if(target == null || target == this) return false;
-        if(getStatus() != AccountStatus.ACTIVE || target.getStatus() != AccountStatus.ACTIVE) return false;
+    public boolean transfer(BankAccount target, BigDecimal amount) {
+        if (target == null || target == this) return false;
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) return false;
 
-        if(!this.withdraw(amount)) return false;
-        if(!target.deposit(amount)) {
-            this.deposit(amount);
+        if (getStatus() != AccountStatus.ACTIVE || target.getStatus() != AccountStatus.ACTIVE) return false;
+
+        if (!this.withdraw(amount)) return false;
+        if (!target.deposit(amount)) {
+            this.deposit(amount); // rollback
             return false;
         }
-
         return true;
     }
+
 }

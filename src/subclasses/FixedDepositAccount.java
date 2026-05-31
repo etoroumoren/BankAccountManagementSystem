@@ -2,6 +2,7 @@ package subclasses;
 
 import base.BankAccount;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
 
@@ -10,7 +11,7 @@ public class FixedDepositAccount extends BankAccount {
     private final LocalDate startDate;
     private final Period lockPeriod;
 
-    public FixedDepositAccount(int accountNumber, double balance, String owner, LocalDate startDate, int lockYears){
+    public FixedDepositAccount(int accountNumber, BigDecimal balance, String owner, LocalDate startDate, int lockYears){
         super(accountNumber, balance, owner);
         this.startDate = startDate;
         this.lockPeriod = Period.ofYears(lockYears);
@@ -30,13 +31,12 @@ public class FixedDepositAccount extends BankAccount {
     }
 
     @Override
-    public boolean withdraw(int amount) {
-        if (amount <= 0) return false;
+    public boolean withdraw(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) return false;
 
         if (isLocked()) {
             return false;
         }
-        super.withdraw(amount);
-        return true;
+        return super.withdraw(amount);
     }
 }
