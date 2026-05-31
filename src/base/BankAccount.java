@@ -1,6 +1,9 @@
 package base;
 
-abstract public class BankAccount implements Printable {
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+abstract public class BankAccount implements Printable, Transactable {
 
     private int accountNumber;
     private double balance;
@@ -11,6 +14,27 @@ abstract public class BankAccount implements Printable {
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.owner = owner;
+    }
+
+    public class Transaction {
+        private int amount;
+        private LocalDateTime now;
+
+        public int getAmount() {
+            return amount;
+        }
+
+        public void setAmount(int amount) {
+            this.amount = amount;
+        }
+
+        public LocalDateTime getNow() {
+            return now;
+        }
+
+        public void setNow(LocalDateTime now) {
+            this.now = now;
+        }
     }
 
     public int getAccountNumber() {
@@ -47,18 +71,35 @@ abstract public class BankAccount implements Printable {
 
     abstract public String getAccountType();
 
-    public void deposit(int amount) {
-        if(amount <= 0) return;
-        if(status != AccountStatus.ACTIVE) return;
+    public boolean deposit(int amount) {
+        if(amount <= 0) return false;
+        if(status != AccountStatus.ACTIVE) return false;
         this.balance += amount;
+        return true;
     }
 
-    public void withdraw(int amount) {
-        if(status != AccountStatus.ACTIVE) return;
+    public boolean withdraw(int amount) {
+        if(status != AccountStatus.ACTIVE) return false;
+        if(amount <= 0) return false;
         this.balance -= amount;
+        return true;
     }
 
     public void printStatement() {
         System.out.println("Your account balance is: " + getBalance());
+    }
+
+
+    public boolean transfer(BankAccount target, int amount) {
+        if(target == null || target == this) return false;
+        if(getStatus() != AccountStatus.ACTIVE || target.getStatus() != AccountStatus.ACTIVE) return false;
+
+        if(!this.withdraw(amount)) return false;
+        if(!target.deposit(amount)) {
+            this.deposit(amount);
+            return false;
+        }
+
+        return true;
     }
 }

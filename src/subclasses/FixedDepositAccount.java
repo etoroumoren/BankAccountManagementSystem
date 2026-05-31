@@ -30,12 +30,13 @@ public class FixedDepositAccount extends BankAccount {
     }
 
     @Override
-    public void withdraw(int amount) {
-        if (amount <= 0) return;
+    public boolean withdraw(int amount) {
+        if (amount <= 0) return false;
 
         if (isLocked()) {
-            return;
+            return false;
         }
         super.withdraw(amount);
+        return true;
     }
 }

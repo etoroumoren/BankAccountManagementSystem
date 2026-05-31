@@ -35,12 +35,13 @@ public class SavingsAccount extends BankAccount {
     }
 
     @Override
-    public void withdraw(int amount) {
-        if(amount < 0) return;
+    public boolean withdraw(int amount) {
+        if(amount < 0) return false;
         if(getBalance() - amount < 150) {
-            return;
+            return false;
         }
 
         super.withdraw(amount);
+        return true;
     }
 }

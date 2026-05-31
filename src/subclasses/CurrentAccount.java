@@ -24,12 +24,13 @@ public class CurrentAccount extends BankAccount {
     }
 
     @Override
-    public void withdraw(int amount){
-        if (amount <= 0) return;
+    public boolean withdraw(int amount){
+        if (amount <= 0) return false;
 
         if(getBalance() - amount < -overdraftLimit) {
-            return;
+            return false;
         }
         super.withdraw(amount);
+        return true;
     }
 }
